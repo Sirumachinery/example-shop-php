@@ -1,6 +1,23 @@
 <?php
 
-$secret = 'ViwyffuchifneKnernib';
+require_once('Siru.php');
+
+$siru = new Siru();
+
+$merchantSecret = 'merchantSecret';
+
+if (isset($_GET['siru_signature'])) {
+
+    $calculatedSignature = $siru->calculateResponseSignature($_GET, $merchantSecret);
+
+    $signatureFromRequest = $_GET['siru_signature'];
+
+    var_dump(($signatureFromRequest === $calculatedSignature ? 'Signature matches' : 'Signature does not match!'));
+}
+
+if (count($_POST)) {
+    file_put_contents('post.log', $_POST, FILE_APPEND);
+}
 
 $fields = [
     'variant' => 'variant1',
@@ -9,21 +26,16 @@ $fields = [
     'basePrice' => '5.00',
     'taxClass' => 3,
     'serviceGroup' => 4,
-    'customerNumber' => '358503485508',
+    'customerNumber' => '358xxxxxxxx',
+    'purchaseReference' => 'P1234567',
+    'customerReference' => 'john.doe@tunk.io',
 ];
 
 $baseUrl = 'https://' . $_SERVER['SERVER_NAME'];
 
 $statusNotSuccess = !isset($_GET['status']) || (isset($_GET['status']) && $_GET['status'] !== 'success');
 
-$signature = getSignature($fields, $secret);
-
-function getSignature(array $fields, $secret)
-{
-    ksort($fields);
-
-    return hash_hmac("sha512", implode(';', $fields), $secret);
-}
+$signature = $siru->calculateRequestSignature($fields, $merchantSecret);
 
 ?>
 
@@ -54,6 +66,8 @@ function getSignature(array $fields, $secret)
                 <input type="hidden" name="redirectAfterSuccess" value="<?= $baseUrl; ?>/demoshop.php?status=success">
                 <input type="hidden" name="redirectAfterFailure" value="<?= $baseUrl; ?>/demoshop.php?status=failure">
                 <input type="hidden" name="redirectAfterCancel" value="<?= $baseUrl; ?>/demoshop.php?status=cancel">
+                <input type="hidden" name="purchaseReference" value="P1234567">
+                <input type="hidden" name="customerReference" value="john.doe@tunk.io">
                 <input type="hidden" name="signature" value="<?= $signature; ?>">
 
                 <label>
