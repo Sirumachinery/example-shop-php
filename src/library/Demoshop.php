@@ -27,16 +27,24 @@ class Demoshop
      * @return array
      * @throws Exception
      */
-    private function getProduct($reference)
+    public function getProduct($reference)
     {
         $products = array_filter($this->products, function($product) use ($reference) {
             return $product['id'] === $reference;
         });
 
         if (count($products) === 1) {
-            return $products[0];
+            return array_shift($products);
         }
 
         throw new Exception('Product not found with id: ' . $reference);
+    }
+
+    /**
+     * @return array
+     */
+    public function getProducts()
+    {
+        return $this->products;
     }
 } 

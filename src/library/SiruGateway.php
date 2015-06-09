@@ -1,6 +1,6 @@
 <?php
 
-class Siru
+class SiruGateway
 {
     /**
      * @var string
@@ -8,22 +8,40 @@ class Siru
     private $merchantSecret;
 
     /**
-     * @param string $merchantSecret
+     * @var int
      */
-    public function __construct($merchantSecret)
+    private $merchantId;
+
+    /**
+     * @param string $merchantSecret
+     * @param int    $merchantId
+     */
+    public function __construct($merchantSecret, $merchantId)
     {
         $this->merchantSecret = $merchantSecret;
+        $this->merchantId = $merchantId;
+    }
+
+    /**
+     * @param  array $inputFields
+     * @return string
+     */
+    public function createRequestSignature(array $inputFields)
+    {
+        $signedFields = array_merge([ 'merchantId' => $this->merchantId ], $inputFields);
+
+        ksort($signedFields);
+
+        return $this->calculateHash($signedFields);
     }
 
     /**
      * @param  array $fields
      * @return string
      */
-    public function createRequestSignature(array $fields)
+    private function calculateHash($fields)
     {
-        ksort($fields);
-
-        return $this->calculateHash($fields);
+        return hash_hmac("sha512", implode(';', $fields), $this->merchantSecret);
     }
 
     /**
@@ -39,14 +57,5 @@ class Siru
         }, $signedFields));
 
         return $request['siru_signature'] === $signature;
-    }
-
-    /**
-     * @param  array $fields
-     * @return string
-     */
-    private function calculateHash($fields)
-    {
-        return hash_hmac("sha512", implode(';', $fields), $this->merchantSecret);
     }
 } 

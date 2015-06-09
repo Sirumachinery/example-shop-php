@@ -1,13 +1,21 @@
 <?php
-
-require_once('../src/library/Siru.php');
-require_once('../src/library/Demoshop.php');
+// Siru Reference DemoShop - feel free to modify!
 
 $merchantSecret = 'xooxoo';
+$merchantId = 1;
 
-$siru = new Siru($merchantSecret);
+$msisdn = '35850xxxxxxx';
+$email = 'john.doe@tunk.io';
 
-if (isset($_GET['siru_signature']) && !$siru->responseSignatureIsValid($_GET)) {
+// No need to edit below this point.
+
+require_once('../src/library/SiruGateway.php');
+require_once('../src/library/Demoshop.php');
+
+$siruGateway = new SiruGateway($merchantSecret, $merchantId);
+$demoshop = new Demoshop();
+
+if (isset($_GET['siru_signature']) && !$siruGateway->responseSignatureIsValid($_GET)) {
     die('Signature does not match!');
 }
 
@@ -22,9 +30,7 @@ if (isset($_GET['notify'])) {
 
     $requestJson = json_decode($requestBody, true);
 
-    if ($siru->responseSignatureIsValid($requestJson)) {
-        $demoshop = new Demoshop();
-
+    if ($siruGateway->responseSignatureIsValid($requestJson)) {
         $event = $requestJson['siru_event'];
 
         switch ($event) {
@@ -55,24 +61,29 @@ if (isset($_GET['notify'])) {
 
 $baseUrl = 'https://' . $_SERVER['SERVER_NAME'];
 
-$fields = [
-    'variant' => 'variant1',
-    'merchantId' => '1',
-    'purchaseCountry' => 'FI',
-    'basePrice' => '5.00',
-    'taxClass' => 3,
-    'serviceGroup' => 4,
-    'customerNumber' => '358xxxxxxx',
-    'purchaseReference' => 'P1234567',
-    'customerReference' => 'john.doe@tunk.io',
-    'notifyAfterSuccess' => $baseUrl . '/?notify=success',
-    'notifyAfterFailure' => $baseUrl . '/?notify=failure',
-    'notifyAfterCancel' => $baseUrl . '/?notify=cancel',
-];
+$id = isset($_GET['id']) ? $_GET['id'] : null;
+
+$product = $id ? $demoshop->getProduct($id) : null;
+
+if ($product) {
+    $signedFields = [
+        'variant' => 'variant1',
+        'purchaseCountry' => 'FI',
+        'basePrice' => number_format($product['price'], 2),
+        'taxClass' => 3,
+        'serviceGroup' => 4,
+        'customerNumber' => $msisdn,
+        'purchaseReference' => $product['id'],
+        'customerReference' => $email,
+        'notifyAfterSuccess' => $baseUrl . '/?notify=success',
+        'notifyAfterFailure' => $baseUrl . '/?notify=failure',
+        'notifyAfterCancel' => $baseUrl . '/?notify=cancel',
+    ];
+
+    $signature = $siruGateway->createRequestSignature($signedFields);
+}
 
 $statusNotSuccess = !isset($_GET['status']) || (isset($_GET['status']) && $_GET['status'] !== 'success');
-
-$signature = $siru->createRequestSignature($fields);
 
 ?>
 
@@ -85,63 +96,76 @@ $signature = $siru->createRequestSignature($fields);
             .success { background-color: green; color: white; }
             .failure { background-color: red;   color: white; }
             .cancelled { background-color: yellow; color: black; }
+            .product { display: inline-block; margin: 10px; border: 1px solid gray; padding: 10px; }
         </style>
         <title>SiruMobile Reference DemoShop</title>
     </head>
     <body>
-        <img src="https://payment.siru.tunk.io/images/sirumobile-logo_sirumobile-logo_1.png">
+        <a href="/">
+            <img src="https://staging.sirumobile.com/bundles/sirudemoshop/images/payment-siru.png?c1e839d5030fe002a43947c3ac531e415928d805">
+        </a>
 
         <h1>SiruMobile Reference DemoShop</h1>
 
-        <?php if ($statusNotSuccess): ?>
-            <h2>Variant1</h2>
+        <h2>Variant1</h2>
 
-            <form action="https://payment.siru.tunk.io/payment.html" method="post">
-                <input type="hidden" name="variant" value="variant1">
-                <input type="hidden" name="merchantId" value="1">
-                <input type="hidden" name="purchaseCountry" value="FI">
+        <?php if ($product): ?>
+
+            <form action="https://staging.sirumobile.com/payment.html" method="post">
+                <input type="hidden" name="variant" value="<?= $signedFields['variant']; ?>">
+                <input type="hidden" name="merchantId" value="<?= $merchantId; ?>">
+                <input type="hidden" name="purchaseCountry" value="<?= $signedFields['purchaseCountry']; ?>">
                 <input type="hidden" name="redirectAfterSuccess" value="<?= $baseUrl; ?>/?status=success">
                 <input type="hidden" name="redirectAfterFailure" value="<?= $baseUrl; ?>/?status=failure">
                 <input type="hidden" name="redirectAfterCancel" value="<?= $baseUrl; ?>/?status=cancel">
                 <?php foreach (['notifyAfterSuccess', 'notifyAfterFailure', 'notifyAfterCancel'] as $status): ?>
-                    <input type="hidden" name="<?= $status; ?>" value="<?= $fields[$status]; ?>">
+                    <input type="hidden" name="<?= $status; ?>" value="<?= $signedFields[$status]; ?>">
                 <?php endforeach; ?>
-                <input type="hidden" name="purchaseReference" value="P1234567">
-                <input type="hidden" name="customerReference" value="john.doe@tunk.io">
+                <input type="hidden" name="purchaseReference" value="<?= $signedFields['purchaseReference']; ?>">
+                <input type="hidden" name="customerReference" value="<?= $signedFields['customerReference']; ?>">
+
+                <input type="hidden" name="serviceGroup" value="<?= $signedFields['serviceGroup']; ?>">
+                <input type="hidden" name="basePrice" value="<?= $signedFields['basePrice']; ?>">
+                <input type="hidden" name="customerNumber" value="<?= $signedFields['customerNumber']; ?>">
+                <input type="hidden" name="taxClass" value="<?= $signedFields['taxClass']; ?>">
+
                 <input type="hidden" name="signature" value="<?= $signature; ?>">
 
-                <label>
-                    basePrice
-                    <input type="text" name="basePrice" value="5.00">
-                </label>
-
-                <label>
-                    customerNumber
-                    <input type="text" name="customerNumber" value="358503485508">
-                </label>
-
-                <label>
-                    taxClass
-                    <input type="text" name="taxClass" value="3">
-                </label>
-
-                <label>
-                    serviceGroup
-                    <input type="text" name="serviceGroup" value="4">
-                </label>
-
-                <button>Make a purchase</button>
+                <div class="product">
+                    <strong><?= $product['name']; ?></strong>
+                    <p><?= $product['description']; ?></p>
+                    <p>Price: <?= $signedFields['basePrice']; ?> &euro;</p>
+                    <button>Confirm purchase</button>
+                </div>
             </form>
+
         <?php else: ?>
-            <div class="status success">Successful purchase</div>
-            <br/>
-            <a href="<?= $baseUrl; ?>">Try again!</a>
+
+            <div class="products">
+                <?php foreach ($demoshop->getProducts() as $product): ?>
+                    <div class="product">
+                        <strong><?= $product['name']; ?></strong>
+                        <p><?= $product['description']; ?></p>
+                        <p>Price: <?= number_format($product['price'], 2); ?> &euro;</p>
+                        <a href="?id=<?= $product['id']; ?>">Buy</a>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
         <?php endif; ?>
 
-        <?php if (isset($_GET['status']) && $_GET['status'] === 'failure'): ?>
+        <?php if (isset($_GET['status']) && $_GET['status'] === 'success'): ?>
+
+            <div class="status success">Successful purchase</div>
+
+        <?php elseif (isset($_GET['status']) && $_GET['status'] === 'failure'): ?>
+
             <div class="status failure">Failed purchase</div>
+
         <?php elseif (isset($_GET['status']) && $_GET['status'] === 'cancel'): ?>
+
             <div class="status cancelled">Cancelled purchase</div>
+
         <?php endif; ?>
     </body>
 </html>
