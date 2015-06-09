@@ -1,23 +1,59 @@
 <?php
 
-require_once('Siru.php');
+require_once('../src/library/Siru.php');
+require_once('../src/library/Demoshop.php');
 
-$siru = new Siru();
+$merchantSecret = 'xooxoo';
 
-$merchantSecret = 'merchantSecret';
+$siru = new Siru($merchantSecret);
 
-if (isset($_GET['siru_signature'])) {
-
-    $calculatedSignature = $siru->calculateResponseSignature($_GET, $merchantSecret);
-
-    $signatureFromRequest = $_GET['siru_signature'];
-
-    var_dump(($signatureFromRequest === $calculatedSignature ? 'Signature matches' : 'Signature does not match!'));
+if (isset($_GET['siru_signature']) && !$siru->responseSignatureIsValid($_GET)) {
+    die('Signature does not match!');
 }
 
-if (count($_POST)) {
-    file_put_contents('post.log', $_POST, FILE_APPEND);
+if (isset($_GET['notify'])) {
+    $requestBody = file_get_contents('php://input');
+
+    file_put_contents(
+        '../data/logs/notifications.log',
+        (new DateTime())->format('d.m.Y H:i:s') . " - RECEIVED POST:\n$requestBody\n",
+        FILE_APPEND
+    );
+
+    $requestJson = json_decode($requestBody, true);
+
+    if ($siru->responseSignatureIsValid($requestJson)) {
+        $demoshop = new Demoshop();
+
+        $event = $requestJson['siru_event'];
+
+        switch ($event) {
+            case 'success':
+
+                $demoshop->confirmAndLogPurchase($requestJson);
+                break;
+
+            case 'cancel':
+
+                // TODO: cancel purchase
+                break;
+
+            case 'failure':
+
+                // TODO: fail purchase
+                break;
+
+            default:
+                throw new Exception("Unknown event: '$event'");
+        }
+
+        header("HTTP/1.1 200 OK");
+    }
+
+    die;
 }
+
+$baseUrl = 'https://' . $_SERVER['SERVER_NAME'];
 
 $fields = [
     'variant' => 'variant1',
@@ -26,16 +62,17 @@ $fields = [
     'basePrice' => '5.00',
     'taxClass' => 3,
     'serviceGroup' => 4,
-    'customerNumber' => '358xxxxxxxx',
+    'customerNumber' => '358xxxxxxx',
     'purchaseReference' => 'P1234567',
     'customerReference' => 'john.doe@tunk.io',
+    'notifyAfterSuccess' => $baseUrl . '/?notify=success',
+    'notifyAfterFailure' => $baseUrl . '/?notify=failure',
+    'notifyAfterCancel' => $baseUrl . '/?notify=cancel',
 ];
-
-$baseUrl = 'https://' . $_SERVER['SERVER_NAME'];
 
 $statusNotSuccess = !isset($_GET['status']) || (isset($_GET['status']) && $_GET['status'] !== 'success');
 
-$signature = $siru->calculateRequestSignature($fields, $merchantSecret);
+$signature = $siru->createRequestSignature($fields);
 
 ?>
 
@@ -63,9 +100,12 @@ $signature = $siru->calculateRequestSignature($fields, $merchantSecret);
                 <input type="hidden" name="variant" value="variant1">
                 <input type="hidden" name="merchantId" value="1">
                 <input type="hidden" name="purchaseCountry" value="FI">
-                <input type="hidden" name="redirectAfterSuccess" value="<?= $baseUrl; ?>/demoshop.php?status=success">
-                <input type="hidden" name="redirectAfterFailure" value="<?= $baseUrl; ?>/demoshop.php?status=failure">
-                <input type="hidden" name="redirectAfterCancel" value="<?= $baseUrl; ?>/demoshop.php?status=cancel">
+                <input type="hidden" name="redirectAfterSuccess" value="<?= $baseUrl; ?>/?status=success">
+                <input type="hidden" name="redirectAfterFailure" value="<?= $baseUrl; ?>/?status=failure">
+                <input type="hidden" name="redirectAfterCancel" value="<?= $baseUrl; ?>/?status=cancel">
+                <?php foreach (['notifyAfterSuccess', 'notifyAfterFailure', 'notifyAfterCancel'] as $status): ?>
+                    <input type="hidden" name="<?= $status; ?>" value="<?= $fields[$status]; ?>">
+                <?php endforeach; ?>
                 <input type="hidden" name="purchaseReference" value="P1234567">
                 <input type="hidden" name="customerReference" value="john.doe@tunk.io">
                 <input type="hidden" name="signature" value="<?= $signature; ?>">
