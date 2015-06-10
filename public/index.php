@@ -65,7 +65,7 @@ if (isset($_GET['notify'])) {
     die;
 }
 
-$baseUrl = 'https://' . $_SERVER['SERVER_NAME'];
+$baseUrl = ($_SERVER['SERVER_PORT'] === '443' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
 
 $id = isset($_GET['id']) ? $_GET['id'] : null;
 
