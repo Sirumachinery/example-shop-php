@@ -6,6 +6,7 @@
 ## Setting up the example shop
 1. Figure out what is the merchant secret from the API-documentation
 2. Change the `$merchantSecret = 'xooxoo';` from `index.php` to the appropriate secret
+3. Change the `$msisdn` from `index.php` to any msisdn you want to test with
 
 ## Using the example shop
 Run the example shop with the following commands:
