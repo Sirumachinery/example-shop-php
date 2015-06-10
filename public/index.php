@@ -1,14 +1,20 @@
 <?php
+
+//
 // Siru Reference DemoShop - feel free to modify!
+//
+// NOTICE!
+// If you wan't SiruMobile to be able to notify your application after a succesful/failed/cancelled purchase,
+// you must provide public URL as notifyAfterX arguments.
+//
 
 $merchantSecret = 'xooxoo';
-$merchantId = 1;
+$merchantId = 18;
 
 $msisdn = '35850xxxxxxx';
 $email = 'john.doe@tunk.io';
 
 // No need to edit below this point.
-
 require_once('../src/library/SiruGateway.php');
 require_once('../src/library/Demoshop.php');
 
