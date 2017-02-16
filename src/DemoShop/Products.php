@@ -13,16 +13,6 @@ class Products
         $this->products = json_decode(file_get_contents('../data/products.json'), true);
     }
 
-    public function confirmAndLogPurchase(array $notify)
-    {
-        $product = $this->getProduct($notify['siru_purchaseReference']);
-
-        $logEntry = (new DateTime())->format('d.m.Y H:i:s')
-                  . " - {$product['name']} ({$product['id']}) was sold for {$product['price']} euros\n";
-
-        file_put_contents('../data/logs/purchases.log', $logEntry, FILE_APPEND);
-    }
-
     /**
      * @param  string $reference
      * @return array

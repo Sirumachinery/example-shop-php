@@ -1,4 +1,7 @@
 <?php
+use Siru\Signature;
+use Siru\API;
+use DemoShop\Products;
 
 /**
  * Siru Reference DemoShop - feel free to modify!
@@ -19,59 +22,15 @@ if(file_exists('../vendor/autoload.php') == false) {
 require_once('../configuration.php');
 require_once('../vendor/autoload.php');
 
-$signature = new \Siru\Signature($merchantId, $merchantSecret);
-$api = new \Siru\API($signature);
+$signature = new Signature($merchantId, $merchantSecret);
+$api = new API($signature);
 
-$products = new DemoShop\Products();
+$products = new Products();
 
-if (isset($_GET['siru_signature']) && !$signature->isNotificationAuthentic($_GET)) {
-    die('Signature does not match!');
-}
-
-if (isset($_GET['notify'])) {
-    $requestBody = file_get_contents('php://input');
-
-    file_put_contents(
-        '../data/logs/notifications.log',
-        (new DateTime())->format('d.m.Y H:i:s') . " - RECEIVED POST:\n$requestBody\n",
-        FILE_APPEND
-    );
-
-    $requestJson = json_decode($requestBody, true);
-
-    if ($api->getPaymentApi()->isNotificationAuthentic($requestJson)) {
-        $event = $requestJson['siru_event'];
-
-        switch ($event) {
-            case 'success':
-
-                $products->confirmAndLogPurchase($requestJson);
-                break;
-
-            case 'cancel':
-
-                // TODO: cancel purchase
-                break;
-
-            case 'failure':
-
-                // TODO: fail purchase
-                break;
-
-            default:
-                throw new Exception("Unknown event: '$event'");
-        }
-
-        header("HTTP/1.1 200 OK");
-    }
-
-    die;
-}
-
-$baseUrl = ($_SERVER['SERVER_PORT'] === '443' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
+$baseUrl = ($_SERVER['SERVER_PORT'] === '443' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+$notifyBaseUrl = str_replace('index.php', 'notify.php', $baseUrl);
 
 $id = isset($_GET['id']) ? $_GET['id'] : null;
-
 $product = $id ? $products->getProduct($id) : null;
 
 if ($product) {
@@ -85,14 +44,12 @@ if ($product) {
         'customerNumber' => $msisdn,
         'purchaseReference' => $product['id'],
         'customerReference' => 'john.doe@tunk.io',
-        'notifyAfterSuccess' => $baseUrl . '/?notify=success',
-        'notifyAfterFailure' => $baseUrl . '/?notify=failure',
-        'notifyAfterCancel' => $baseUrl . '/?notify=cancel',
-    ], [], \Siru\Signature::SORT_FIELDS);
+        'notifyAfterSuccess' => $notifyBaseUrl . '?notify=success',
+        'notifyAfterFailure' => $notifyBaseUrl . '?notify=failure',
+        'notifyAfterCancel' => $notifyBaseUrl . '?notify=cancel',
+    ], [], Signature::SORT_FIELDS);
 
 }
-
-$statusNotSuccess = !isset($_GET['status']) || (isset($_GET['status']) && $_GET['status'] !== 'success');
 
 ?>
 
@@ -124,9 +81,9 @@ $statusNotSuccess = !isset($_GET['status']) || (isset($_GET['status']) && $_GET[
                 <input type="hidden" name="variant" value="<?= $signedFields['variant']; ?>">
                 <input type="hidden" name="merchantId" value="<?= $merchantId; ?>">
                 <input type="hidden" name="purchaseCountry" value="<?= $signedFields['purchaseCountry']; ?>">
-                <input type="hidden" name="redirectAfterSuccess" value="<?= $baseUrl; ?>/?status=success">
-                <input type="hidden" name="redirectAfterFailure" value="<?= $baseUrl; ?>/?status=failure">
-                <input type="hidden" name="redirectAfterCancel" value="<?= $baseUrl; ?>/?status=cancel">
+                <input type="hidden" name="redirectAfterSuccess" value="<?= $baseUrl; ?>?status=success">
+                <input type="hidden" name="redirectAfterFailure" value="<?= $baseUrl; ?>?status=failure">
+                <input type="hidden" name="redirectAfterCancel" value="<?= $baseUrl; ?>?status=cancel">
                 <?php foreach (['notifyAfterSuccess', 'notifyAfterFailure', 'notifyAfterCancel'] as $status): ?>
                     <input type="hidden" name="<?= $status; ?>" value="<?= $signedFields[$status]; ?>">
                 <?php endforeach; ?>
@@ -163,18 +120,28 @@ $statusNotSuccess = !isset($_GET['status']) || (isset($_GET['status']) && $_GET[
 
         <?php endif; ?>
 
-        <?php if (isset($_GET['status']) && $_GET['status'] === 'success'): ?>
+        <?php
 
-            <div class="status success">Successful purchase</div>
+        // If user was redirected here from Siru payment flow, the payment status can be found in GET parameters
+        if(isset($_GET['siru_signature'])) {
 
-        <?php elseif (isset($_GET['status']) && $_GET['status'] === 'failure'): ?>
+            if(!$signature->isNotificationAuthentic($_GET)) {
+                // The GET parameters were not signed correct which can mean someone is trying to scam your shop
+                echo '<div class="status failure">Unable to determine purchase status. Signature is not valid</div>';
+            
+            } elseif ($_GET['status'] === 'success') {
+                echo '<div class="status success">Successful purchase</div>';
 
-            <div class="status failure">Failed purchase</div>
+            } elseif ($_GET['status'] === 'failure') {
+                echo '<div class="status failure">Failed purchase</div>';
 
-        <?php elseif (isset($_GET['status']) && $_GET['status'] === 'cancel'): ?>
+            } elseif ($_GET['status'] === 'cancel') {
+                echo '<div class="status cancelled">Cancelled purchase</div>';
+            }
 
-            <div class="status cancelled">Cancelled purchase</div>
+        }
 
-        <?php endif; ?>
+        ?>
+
     </body>
 </html>

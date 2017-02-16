@@ -1,6 +1,7 @@
 {
     "require": {
-        "sirumobile/siru-php-sdk": "dev-master"
+        "sirumobile/siru-php-sdk": "dev-master",
+        "monolog/monolog": "^1.22"
     },
 
     "autoload": {
