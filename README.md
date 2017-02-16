@@ -1,12 +1,14 @@
 # SiruMobile Example Shop
 
 ## Prerequisites
-- You should have received a demo merchant secret from SiruMobile. If not, please contact SiruMobile.
+- You should have received your API credentials from SiruMobile. If not, please contact SiruMobile.
 - PHP 5.4 or higher
+- [composer](http://getcomposer.org)
 
 ## Setting up the example shop
-1. Change the `$merchantSecret = 'xooxoo';` from `index.php` to the appropriate secret
-2. Change the `$msisdn` from `index.php` to any msisdn you want to test with
+1. Download and unpack or clone the example shop to your webserver
+2. Copy the file `configuration.php.dist` to `configuration.php` and add your API credentials and phone number there
+3. Install required dependencies using `composer install`
 
 ## Using the example shop
 Run the example shop with the following commands:

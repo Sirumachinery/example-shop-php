@@ -1,6 +1,7 @@
 <?php
+namespace DemoShop;
 
-class Demoshop
+class Products
 {
     /**
      * @var array

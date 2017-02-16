@@ -1,27 +1,30 @@
 <?php
 
-//
-// Siru Reference DemoShop - feel free to modify!
-//
-// NOTICE!
-// If you wan't SiruMobile to be able to notify your application after a succesful/failed/cancelled purchase,
-// you must provide public URL as notifyAfterX arguments.
-//
+/**
+ * Siru Reference DemoShop - feel free to modify!
+ *
+ * NOTICE!
+ * If you wan't SiruMobile to be able to notify your application after a succesful/failed/cancelled purchase,
+ * you must provide public URL as notifyAfterX arguments.
+ */
 
-$merchantSecret = 'xooxoo';
-$merchantId = 18;
+if(file_exists('../configuration.php') == false) {
+    die("<h1>Missing configuration.php</h1>Please copy configuration.php.dist to configuration.php and edit your credentials and phone number there.");
+}
 
-$msisdn = '35850xxxxxxx';
-$email = 'john.doe@tunk.io';
+if(file_exists('../vendor/autoload.php') == false) {
+    die('<h1>Missing autoloader</h1>Please install <a href="https://getcomposer.org">Composer</a> and run <code>composer install</code> to install required dependencies.');
+}
 
-// No need to edit below this point.
-require_once('../src/library/SiruGateway.php');
-require_once('../src/library/Demoshop.php');
+require_once('../configuration.php');
+require_once('../vendor/autoload.php');
 
-$siruGateway = new SiruGateway($merchantSecret, $merchantId);
-$demoshop = new Demoshop();
+$signature = new \Siru\Signature($merchantId, $merchantSecret);
+$api = new \Siru\API($signature);
 
-if (isset($_GET['siru_signature']) && !$siruGateway->responseSignatureIsValid($_GET)) {
+$products = new DemoShop\Products();
+
+if (isset($_GET['siru_signature']) && !$signature->isNotificationAuthentic($_GET)) {
     die('Signature does not match!');
 }
 
@@ -36,13 +39,13 @@ if (isset($_GET['notify'])) {
 
     $requestJson = json_decode($requestBody, true);
 
-    if ($siruGateway->responseSignatureIsValid($requestJson)) {
+    if ($api->getPaymentApi()->isNotificationAuthentic($requestJson)) {
         $event = $requestJson['siru_event'];
 
         switch ($event) {
             case 'success':
 
-                $demoshop->confirmAndLogPurchase($requestJson);
+                $products->confirmAndLogPurchase($requestJson);
                 break;
 
             case 'cancel':
@@ -69,10 +72,11 @@ $baseUrl = ($_SERVER['SERVER_PORT'] === '443' ? 'https://' : 'http://') . $_SERV
 
 $id = isset($_GET['id']) ? $_GET['id'] : null;
 
-$product = $id ? $demoshop->getProduct($id) : null;
+$product = $id ? $products->getProduct($id) : null;
 
 if ($product) {
-    $signedFields = [
+
+    $signedFields = $signature->signMessage([
         'variant' => 'variant1',
         'purchaseCountry' => 'FI',
         'basePrice' => number_format($product['price'], 2),
@@ -80,13 +84,12 @@ if ($product) {
         'serviceGroup' => 4,
         'customerNumber' => $msisdn,
         'purchaseReference' => $product['id'],
-        'customerReference' => $email,
+        'customerReference' => 'john.doe@tunk.io',
         'notifyAfterSuccess' => $baseUrl . '/?notify=success',
         'notifyAfterFailure' => $baseUrl . '/?notify=failure',
         'notifyAfterCancel' => $baseUrl . '/?notify=cancel',
-    ];
+    ], [], \Siru\Signature::SORT_FIELDS);
 
-    $signature = $siruGateway->createRequestSignature($signedFields);
 }
 
 $statusNotSuccess = !isset($_GET['status']) || (isset($_GET['status']) && $_GET['status'] !== 'success');
@@ -107,11 +110,11 @@ $statusNotSuccess = !isset($_GET['status']) || (isset($_GET['status']) && $_GET[
         <title>SiruMobile Reference DemoShop</title>
     </head>
     <body>
-        <a href="/">
+<!--        <a href="/">
             <img src="https://staging.sirumobile.com/bundles/sirudemoshop/images/payment-siru.png?c1e839d5030fe002a43947c3ac531e415928d805">
         </a>
-
-        <h1>SiruMobile Reference DemoShop</h1>
+-->
+        <h1><a href="/">Siru Mobile example shop</a></h1>
 
         <h2>Variant1</h2>
 
@@ -135,7 +138,7 @@ $statusNotSuccess = !isset($_GET['status']) || (isset($_GET['status']) && $_GET[
                 <input type="hidden" name="customerNumber" value="<?= $signedFields['customerNumber']; ?>">
                 <input type="hidden" name="taxClass" value="<?= $signedFields['taxClass']; ?>">
 
-                <input type="hidden" name="signature" value="<?= $signature; ?>">
+                <input type="hidden" name="signature" value="<?= $signedFields['signature']; ?>">
 
                 <div class="product">
                     <strong><?= $product['name']; ?></strong>
@@ -148,7 +151,7 @@ $statusNotSuccess = !isset($_GET['status']) || (isset($_GET['status']) && $_GET[
         <?php else: ?>
 
             <div class="products">
-                <?php foreach ($demoshop->getProducts() as $product): ?>
+                <?php foreach ($products->getProducts() as $product): ?>
                     <div class="product">
                         <strong><?= $product['name']; ?></strong>
                         <p><?= $product['description']; ?></p>

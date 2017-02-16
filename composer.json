@@ -1,0 +1,11 @@
+{
+    "require": {
+        "sirumobile/siru-php-sdk": "dev-master"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "": "src/"
+        }
+    }
+}

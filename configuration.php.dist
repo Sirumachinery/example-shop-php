@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * Copy this file as configuration.php and edit your information to following variables.
+ */
+
+// Your merchant id provided by Siru Mobile
+$merchantId = '';
+
+// Your merchant secret provided by Siru Mobile
+$merchantSecret = '';
+
+// Your country. Either FI or NO for staging.
+$purchaseCountry = 'FI';
+
+// Your phone number. This must be a valid number in the select country
+$msisdn = '';
