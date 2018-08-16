@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <hr/>
+
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }}" role="alert">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="product-small">
+                        <div class="product-title-bar clearfix">
+                            <h2>{{ product.title | trans }}</h2>
+                            <p class="lead">{{ product.price | craue_currency(product.currency) }}</p>
+                        </div>
+                        <div class="product-info">
+                            <img src="{{ asset('build/images/' ~ product.image) }}" />
+                            <p>{{ product.description | trans }}</p>
+                        </div>
+                    </div>
+
+                    <div class="price-info">
+                        <h5 class="text-muted">{{ "payment.delivery" | trans }} {{ '0.00' | craue_currency(product.currency) }}</h5>
+                        <h5 class="text-muted">{{ "payment.method" | trans }} {{ '0.00' | craue_currency(product.currency) }}</h5>
+
+                        <hr>
+
+                        <h4>{{ "payment.total" | trans }} {{ product.price | craue_currency(product.currency) }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-7 col-md-offset-1">
+
+                    <h3>{{  "payment.select" | trans }}</h3>
+
+                    <form
+                        id="payments"
+                        action="{{ path('demoshop_post', { 'productId': productId }) }}"
+                        method="post">
+                        <div class="payment-options">
+
+                            {% if product.country == 'FI' or product.country == 'SE' or product.country == 'NO' %}
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="radio" id="payment-variant" name="variant" value="variant1" />
+                                        <img src="{{ asset('build/images/sirumobile-logo.png') }}" alt="{{ 'core.title.siru_mobile' | trans }}" />
+                                        {{  "core.title.siru_mobile_payment" | trans }}
+                                    </label>
+                                </div>
+                            {% endif %}
+
+                            {% if product.country == 'FI' %}
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="radio" id="payment-variant-2" name="variant" value="variant2" />
+                                        <img src="{{ asset('build/images/sirumobile-logo.png') }}" alt="{{ 'core.title.siru_mobile' | trans }}" />
+                                        {{  "Siru IP Payment" | trans }}
+                                    </label>
+                                </div>
+
+                            {% endif %}
+
+                            {% if product.country == 'GB' %}
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="radio" id="payment-variant-4" name="variant" value="variant4" />
+                                        <img src="{{ asset('build/images/sirumobile-logo.png') }}" alt="{{ 'core.title.siru_mobile' | trans }}" />
+                                        {{  "Siru Mobile Gateway" | trans }}
+                                    </label>
+                                </div>
+                            {% endif %}
+
+                            <div class="checkbox">
+                                <label>
+                                    <input type="radio" id="payment-variant-3" name="variant" value="variant3" checked="checked" />
+                                    <img src="{{ asset('build/images/sirumobile-logo.png') }}" alt="{{ 'core.title.siru_mobile' | trans }}" />
+                                    {{  'core.title.wallet' | trans }}
+                                </label>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group" id="phoneNumber">
+                            <label>{{ "payment.input.mobile" | trans }}</label>
+                            <input id="customerNumber" type="text" name="customerNumber" class="form-control" />
+                        </div>
+
+                        <input id="submit-form" class="btn btn-lg btn-success" type="submit" value="{{ 'payment.input.submit' | trans }}"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+
+    <script>
+        $(document).ready(function () {
+            $('#payments input:radio').click(function() {
+                var paymentMethod = $(this).val();
+
+                if (paymentMethod === 'variant1' || paymentMethod === 'variant4') {
+                    $('#phoneNumber').show();
+                    $('#customerNumber').prop('required', true);
+                } else {
+                    $('#phoneNumber').hide();
+                    $('#customerNumber').prop('required', false);
+                }
+
+            }).eq(0).click();
+
+        });
+    </script>
+{% endblock %}

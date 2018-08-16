@@ -1,0 +1,61 @@
+list.welcome: "Welcome!"
+list.lead: "In the demo shop you can test the payment system using your mobile phone. The products are fictional and you will not be charged for the product."
+list.sublead: "Calls will cost 3-5c per minute from a Finnish mobile phone, calls from other operators and mobile providers may vary and will be charged at their standard rates."
+list.buy: "Buy this product!"
+list.products.FI: "Shop in Finland"
+list.products.SE: "Shop in Sweden"
+list.products.NO: "Shop in Norway"
+list.products.GB: "Shop in United Kingdom"
+
+core:
+  title:
+    siru_mobile: 'Siru Mobile'
+    siru_mobile_payment: 'Siru Mobile Payment'
+    wallet: 'Siru Mobile Wallet'
+
+product:
+  on_demand:
+    title: "On-Demand"
+    description: "Watch movies straight from the net. Choose the movie you want to watch and pay with your mobile."
+  card_deposit:
+    title: "Digital Card Deposit"
+    description: "Load credit to your prepaid card with Siru Online service."
+  voucher:
+    title: "Voucher"
+    description: "Order a voucher and pay with your mobile. Multiple dealers to choose from."
+  charity:
+      title: "Siru Charity"
+      description: "Donate funds to multiple charities in one, simple transaction."
+  shirt:
+    title: "T-Shirt"
+    description: "High quality cotton t-shirt with a big Siru print. Comes in three beautiful colors (red, black and white)."
+  gaming:
+    title: "Gaming"
+    description: "Top up you're gaming account with mobile!"
+
+payment:
+  fastest: "Fastest payment method"
+  delivery: "Delivery"
+  method: "Payment Method"
+  total: "Total"
+  select: "Select a payment method you prefer"
+  acceptterms: 'Accept <a href="%tos-url%" target="_blank">Terms of Payment</a>'
+  error:
+    terms: 'You must accept terms and conditions before proceeding.'
+    number: 'Please enter your phonenumber.'
+
+  input:
+    mobile: "Mobile number"
+    firstname: "First name"
+    lastname: "Last name"
+    address: "Address"
+    city: "City"
+    country: "Country"
+    submit: "Purchase"
+
+purchase:
+  thanks: "Thanks for your purchase!"
+  back: "Go back to front page"
+  canceled: "Transaction was canceled!"
+  error: "There was an error in the transaction!"
+  hint: "Please try again or if that doesn't solve the issue, contact our customer support."

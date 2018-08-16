@@ -1,0 +1,63 @@
+list.welcome: "Tervetuloa!"
+list.lead: "Demokaupassa voit testata mobiilimaksamista vain matkapuhelinmaksun (mpm) hinnalla. Tuotteet ovat esimerkkituotteita joista ei peritä maksua."
+list.sublead: ""
+list.buy: "Osta tämä tuote!"
+list.products.FI: "Osta Suomesta"
+list.products.SE: "Osta Ruotsista"
+list.products.NO: "Osta Norjasta"
+list.products.GB: "Osta Iso-Britanniasta"
+
+core:
+  title:
+    siru_mobile: 'Siru Mobile'
+    siru_mobile_payment: 'Siru Mobile Mobiilimaksu'
+    wallet: 'Siru Mobile Lompakko'
+
+product:
+  on_demand:
+    title: "On-Demand"
+    description: "Katso elokuvia suoraan netistä. Valitse haluamasi uutuusleffa ja maksa tilauksesi mobiililla."
+  card_deposit:
+    title: "Digital Card Deposit"
+    description: "Voit ladata prepaid kortillesi saldoa Sirun Online palvelussa."
+  voucher:
+    title: "Voucher"
+    description: "Tilaa etukorttisi ja maksa puhelimella. Useita kauppiaita."
+  charity:
+    title: "Siru Charity"
+    description: "Lahjoita rahaa eri hyväntekeväisyysjärjestöille yhdellä yksinkertaisella transaktiolla."
+  shirt:
+    title: "T-Paita"
+    description: "Korkealaatuinen puuvillasta valmistettu T-paita iloisella Siru-tekstillä. Saatavilla kolmella eri värivaihtoehdolla."
+  gaming:
+    title: "Pelit"
+    description: "Laajenna pelitiliäsi mobiilisti!"
+
+payment:
+  fastest: "Maksa soittamalla"
+  delivery: "Toimitus"
+  method: "Maksutapa"
+  total: "Yhteensä"
+  select: "Valitse haluamasi maksutapa"
+  acceptterms: 'Hyväksyn <a href="%tos-url%" target="_blank">palvelun käyttöehdot</a>'
+  error:
+    terms: 'Sinun on ensin hyväksyttävä käyttöehdot.'
+    number: 'Et antanut puhelinnumeroasi.'
+
+  input:
+    mobile: "Kännykkänumero"
+    firstname: "Etunimi"
+    lastname: "Sukunimi"
+    address: "Osoite"
+    city: "Kaupunki"
+    country: "Maa"
+    submit: "Osta"
+
+purchase:
+  thanks: "Kiitos ostoksestasi!"
+  back: "Takaisin etusivulle"
+  canceled: "Tapahtuma peruttu!"
+  error: "Ostotapahtumassa tapahtui virhe!"
+  hint: "Yritä hetken päästä uudelleen tai ota yhteyttä ylläpitoon."
+
+"Mobile payment": "Mobiilimaksu"

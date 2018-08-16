@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{{ "list.welcome" | trans }}</h1>
+            <p class="lead">{{ "list.lead" | trans }}</p>
+            <p>{{ "list.sublead" | trans }}</p>
+            <hr>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for country in ['FI','SE','NO','GB'] %}
+            <div class="col-md-12">
+
+                <h2>{{ ("list.products." ~ country) | trans }}</h2>
+
+                <div class="row">
+                    {% for id, product in products if product.country == country %}
+
+                        <div class="col-md-4">
+                            <div class="product-small">
+                                <div class="product-title-bar clearfix">
+                                    <h3 class="text-center">{{ product.title | trans }}</h3>
+                                </div>
+                                <div class="product-info text-center">
+                                    <img src="{{ asset('build/images/' ~ product.image) }}"/>
+                                    <h3 class="price">{{ product.price | craue_currency(product.currency) }}</h3>
+                                    <p class="text-left">{{ product.description | trans }}</p>
+                                    <a class="btn btn-lg btn-success" href="{{ path('demoshop_purchase', {'productId': id}) }}">{{ "list.buy" | trans }}</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
