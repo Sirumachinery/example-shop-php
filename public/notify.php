@@ -1,6 +1,7 @@
 <?php
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use Siru\DemoShop\Products;
 use Siru\Signature;
 
 /**
@@ -20,7 +21,7 @@ if(file_exists('../vendor/autoload.php') == false) {
 
 require_once('../configuration.php');
 require_once('../vendor/autoload.php');
-$products = new DemoShop\Products();
+$products = new Products();
 
 // Create a log channel
 $log = new Logger('name');
@@ -43,19 +44,19 @@ if ($signature->isNotificationAuthentic($requestJson)) {
 
     switch ($event) {
         case 'success':
-            $logger->info("Notification of successful payment: {$product['name']} ({$product['id']}) was sold for {$product['price']} euros");
+            $log->info("Notification of successful payment: {$product['name']} ({$product['id']}) was sold for {$product['price']} euros");
             break;
 
         case 'cancel':
-            $logger->info("Notification of canceled payment: {$product['name']} ({$product['id']})");
+            $log->info("Notification of canceled payment: {$product['name']} ({$product['id']})");
             break;
 
         case 'failure':
-            $logger->warning("Notification of failed payment: {$product['name']} ({$product['id']})");
+            $log->warning("Notification of failed payment: {$product['name']} ({$product['id']})");
             break;
 
         default:
-            $logger->error("Received an unknown notification type!");
+            $log->error("Received an unknown notification type!");
     }
 
 }

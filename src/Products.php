@@ -1,5 +1,5 @@
 <?php
-namespace DemoShop;
+namespace Siru\DemoShop;
 
 class Products
 {
@@ -16,7 +16,7 @@ class Products
     /**
      * @param  string $reference
      * @return array
-     * @throws Exception
+     * @throws \Exception
      */
     public function getProduct($reference)
     {
@@ -28,7 +28,7 @@ class Products
             return array_shift($products);
         }
 
-        throw new Exception('Product not found with id: ' . $reference);
+        throw new \Exception('Product not found with id: ' . $reference);
     }
 
     /**

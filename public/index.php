@@ -1,13 +1,13 @@
 <?php
 use Siru\Signature;
 use Siru\API;
-use DemoShop\Products;
+use Siru\DemoShop\Products;
 
 /**
  * Siru Reference DemoShop - feel free to modify!
  *
  * NOTICE!
- * If you wan't SiruMobile to be able to notify your application after a succesful/failed/cancelled purchase,
+ * If you want SiruMobile to be able to notify your application after a successful/failed/cancelled purchase,
  * you must provide public URL as notifyAfterX arguments.
  */
 
@@ -27,14 +27,14 @@ $api = new API($signature);
 
 $products = new Products();
 
-$baseUrl = ($_SERVER['SERVER_PORT'] === '443' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-$notifyBaseUrl = str_replace('index.php', 'notify.php', $baseUrl);
+$redirectUrl = ($_SERVER['SERVER_PORT'] === '443' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
 
 $id = isset($_GET['id']) ? $_GET['id'] : null;
 $product = $id ? $products->getProduct($id) : null;
 
 if ($product) {
 
+    $notifyUrl = str_replace('index.php', 'notify.php', $redirectUrl);
     $signedFields = $signature->signMessage([
         'variant' => 'variant1',
         'purchaseCountry' => 'FI',
@@ -44,9 +44,9 @@ if ($product) {
         'customerNumber' => $msisdn,
         'purchaseReference' => $product['id'],
         'customerReference' => 'john.doe@tunk.io',
-        'notifyAfterSuccess' => $notifyBaseUrl . '?notify=success',
-        'notifyAfterFailure' => $notifyBaseUrl . '?notify=failure',
-        'notifyAfterCancel' => $notifyBaseUrl . '?notify=cancel',
+        'notifyAfterSuccess' => $notifyUrl,
+        'notifyAfterFailure' => $notifyUrl,
+        'notifyAfterCancel' => $notifyUrl,
     ], [], Signature::SORT_FIELDS);
 
 }
@@ -67,10 +67,7 @@ if ($product) {
         <title>SiruMobile Reference DemoShop</title>
     </head>
     <body>
-<!--        <a href="/">
-            <img src="https://staging.sirumobile.com/bundles/sirudemoshop/images/payment-siru.png?c1e839d5030fe002a43947c3ac531e415928d805">
-        </a>
--->
+
         <h1><a href="/">Siru Mobile example shop</a></h1>
 
         <h2>Variant1</h2>
@@ -81,9 +78,9 @@ if ($product) {
                 <input type="hidden" name="variant" value="<?= $signedFields['variant']; ?>">
                 <input type="hidden" name="merchantId" value="<?= $merchantId; ?>">
                 <input type="hidden" name="purchaseCountry" value="<?= $signedFields['purchaseCountry']; ?>">
-                <input type="hidden" name="redirectAfterSuccess" value="<?= $baseUrl; ?>?status=success">
-                <input type="hidden" name="redirectAfterFailure" value="<?= $baseUrl; ?>?status=failure">
-                <input type="hidden" name="redirectAfterCancel" value="<?= $baseUrl; ?>?status=cancel">
+                <input type="hidden" name="redirectAfterSuccess" value="<?= $redirectUrl; ?>">
+                <input type="hidden" name="redirectAfterFailure" value="<?= $redirectUrl; ?>">
+                <input type="hidden" name="redirectAfterCancel" value="<?= $redirectUrl; ?>">
                 <?php foreach (['notifyAfterSuccess', 'notifyAfterFailure', 'notifyAfterCancel'] as $status): ?>
                     <input type="hidden" name="<?= $status; ?>" value="<?= $signedFields[$status]; ?>">
                 <?php endforeach; ?>
@@ -129,13 +126,13 @@ if ($product) {
                 // The GET parameters were not signed correct which can mean someone is trying to scam your shop
                 echo '<div class="status failure">Unable to determine purchase status. Signature is not valid</div>';
             
-            } elseif ($_GET['status'] === 'success') {
+            } elseif ($_GET['siru_event'] === 'success') {
                 echo '<div class="status success">Successful purchase</div>';
 
-            } elseif ($_GET['status'] === 'failure') {
+            } elseif ($_GET['siru_event'] === 'failure') {
                 echo '<div class="status failure">Failed purchase</div>';
 
-            } elseif ($_GET['status'] === 'cancel') {
+            } elseif ($_GET['siru_event'] === 'cancel') {
                 echo '<div class="status cancelled">Cancelled purchase</div>';
             }
 
