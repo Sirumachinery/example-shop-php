@@ -17,7 +17,7 @@
                 <h2>{{ ("list.products." ~ country) | trans }}</h2>
 
                 <div class="row">
-                    {% for id, product in products if product.country == country %}
+                    {% for id, product in products|filter(product => product.country == country) %}
 
                         <div class="col-md-4">
                             <div class="product-small">

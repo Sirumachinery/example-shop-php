@@ -6,7 +6,6 @@
 parameters:
     locale: 'en'
 
-    env(SIRU_USE_STAGING): true
     env(SIRU_ENDPOINT): !php/const Siru\API::ENDPOINT_STAGING
 
 services:
