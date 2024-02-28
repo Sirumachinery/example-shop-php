@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <h3 class="display-3">Checkout</h3>
+        <div class="row">
+            <div class="col">
+                <h4>Shopping cart</h4>
+                <div class="card" style="width:18rem;">
+                    <img src="{{ asset(product.image) }}" class="card-img-top" alt="Mario">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.title }}</h5>
+                        <p class="card-text">{{ product.price }} {{ product.currency }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <h4>Payment method</h4>
+                <form action="{{ path('shop_checkout') }}" method="post" data-turbo="false">
+                    <input type="hidden" name="productId" value="{{ product.id }}">
+                    <div class="mb-3 form-check">
+                        <input type="radio" checked class="form-check-input" id="pm" value="siru">
+                        <label class="form-check-label" for="pm">Siru Mobile</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="customerNumber">Mobile phone number</label>
+                        <input type="text" class="form-control" name="customerNumber" id="customerNumber" placeholder="+1 234 456789">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="tc">
+                        <label class="form-check-label" for="tc">I accept terms and conditions</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary mb-3">Proceed to payment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <h3 class="display-3">Checkout</h3>
+        <div class="row">
+            <div class="col">
+                <h4>Shopping cart</h4>
+                <div class="card" style="width:18rem;">
+                    <img src="{{ asset('images/mario.png') }}" class="card-img-top" alt="Mario">
+                    <div class="card-body">
+                        <h5 class="card-title">Nintendo Giftcard</h5>
+                        <p class="card-text">50.00NGN</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                {% if result == 'success' %}
+                    <div class="alert alert-success">
+                        Payment successful
+                    </div>
+                    <p class="mt-5">Here is your gift card code:</p>
+                    <div class="card">
+                        <div class="card-body">
+                            DEMOVOUCHERCODE123
+                        </div>
+                    </div>
+                {% elseif result == 'cancel' %}
+                    <div class="alert alert-warning">
+                        Payment was canceled
+                    </div>
+                {% else %}
+                    <div class="alert alert-danger">
+                        Payment failed
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
