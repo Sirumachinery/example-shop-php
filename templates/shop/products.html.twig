@@ -4,15 +4,19 @@
     <div class="container">
         <h3 class="display-3">Select your product</h3>
         <h4>Nigeria</h4>
-        {% for product in products %}
-        <div class="card" style="width:16rem;">
-            <img src="{{ asset(product.image) }}" class="card-img-top" alt="Mario">
-            <div class="card-body">
-                <h5 class="card-title">{{ product.title }}</h5>
-                <p class="card-text">{{ product.price }} {{ product.currency }}</p>
-                <a href="{{ path('shop_cart', {productId: product.id}) }}" class="btn btn-primary">Buy</a>
+        <div class="row row-cols-4">
+            {% for product in products %}
+            <div class="col">
+                <div class="card" style="width:12rem;">
+                    <img src="{{ asset(product.image) }}" class="card-img-top" alt="Mario">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.title }}</h5>
+                        <p class="card-text">{{ product.price }} {{ product.currency }}</p>
+                        <a href="{{ path('shop_cart', {productId: product.id}) }}" class="btn btn-primary btn-lg">Buy</a>
+                    </div>
+                </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 {% endblock %}

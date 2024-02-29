@@ -24,6 +24,34 @@ class ProductRepository
                     'variant' => 'variant3',
                     'purchaseCountry' => 'NG',
                 ]
+            ),
+            new Product(
+                'ng-mario-100',
+                'Nintendo Giftcard',
+                '100.00',
+                'NGN',
+                'NG',
+                'images/mario.png',
+                [
+                    'basePrice' => '100.00',
+                    'currency' => 'NGN',
+                    'variant' => 'variant3',
+                    'purchaseCountry' => 'NG',
+                ]
+            ),
+            new Product(
+                'ng-mario-500',
+                'Nintendo Giftcard',
+                '500.00',
+                'NGN',
+                'NG',
+                'images/mario.png',
+                [
+                    'basePrice' => '500.00',
+                    'currency' => 'NGN',
+                    'variant' => 'variant3',
+                    'purchaseCountry' => 'NG',
+                ]
             )
         ];
     }
