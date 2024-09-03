@@ -39,6 +39,8 @@ class CheckoutController extends AbstractController
 #                ->set('notifyAfterFailure', $notifyUrl)
 #                ->set('notifyAfterCancel', $notifyUrl)
                 ->set('customerNumber', $request->request->get('customerNumber'))
+                ->set('customerFirstName', 'John')
+                ->set('customerLastName', 'Doe')
 #                ->set('title', $translator->trans($product['title']))
 #                ->set('purchaseReference', $purchaseReference)
 #                ->set('serviceGroup', 2)
